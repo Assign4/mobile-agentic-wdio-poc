@@ -7,7 +7,7 @@
   "author": "Manoj Kumar Salugu",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Assign4/mobile-agentic-wdio-poc.git",
+    "url": "git+https://github.com/Assign4/mobile-agentic-wdio-poc.git",
     "directory": "packages/mobile-wdio-kit"
   },
   "bugs": {
@@ -28,8 +28,8 @@
     "node": ">=18"
   },
   "bin": {
-    "mobile-wdio-kit": "./bin/cli.mjs",
-    "mwk": "./bin/cli.mjs"
+    "mobile-wdio-kit": "bin/cli.mjs",
+    "mwk": "bin/cli.mjs"
   },
   "files": [
     "bin",
