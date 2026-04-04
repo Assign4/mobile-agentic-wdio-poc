@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "wdio-mcp": {
+      "command": "sh",
+      "args": ["scripts/mcp-with-appium.sh"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "ANDROID_HOME": "${env:HOME}/Library/Android/sdk",
+        "ANDROID_SDK_ROOT": "${env:HOME}/Library/Android/sdk"
+      }
+    }
+  }
+}

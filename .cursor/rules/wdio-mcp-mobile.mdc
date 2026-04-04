@@ -1,0 +1,52 @@
+---
+description: Local Android/iOS automation with wdio-mcp — session start, natural phrasing, demo auto-login
+alwaysApply: true
+---
+
+# wdio-mcp (local mobile)
+
+The MCP server exposes tools with **fixed names** (for example `start_session`). You cannot rename the tool in Cursor; treat the user’s chat as **natural language** that you map to those tools.
+
+This repo **patches `@wdio/mcp`** (`patches/@wdio+mcp+*.patch`, applied on `npm install`): for the **WebdriverIO demo APK** (`android.wdio.native.app` in `appPath`) and **iOS demo** (`ios-demo` in `appPath`), **`start_session` alone** completes login using `MOBILE_USERNAME` / `MOBILE_PASSWORD` (loaded via `scripts/mcp-with-appium.sh` sourcing `.env`). The session response text mentions demo auto-login when it succeeded.
+
+## Map user intent → `start_session`
+
+Call **`start_session`** before any other wdio-mcp automation tool (`click_element`, `tap_element`, `get_elements`, etc.). There is no active driver until `start_session` succeeds.
+
+When the user says any of the following (or similar), they mean **start a mobile session** — i.e. call **`start_session`** with the right platform and **absolute `appPath`**:
+
+- “Start a session”, “start session”, “open a session”
+- “Launch the app”, “open the app”, “start the app”, “run the app”
+- “Open Android / the APK / the emulator app”
+- “Launch iOS”, “open the **.app**”, “start on simulator”, “run the iOS build”
+
+If they do not specify platform, prefer **Android** when the conversation is about this repo’s default demo APK; use **iOS** when they mention simulator, `.app`, or iOS explicitly.
+
+### Android (`platform: "android"`)
+
+- `automationName`: `"UiAutomator2"`
+- **`appPath`**: absolute path from repo root — read `ANDROID_APP_PATH` from `.env` and `resolve(projectRoot, ANDROID_APP_PATH)`, or default `apps/android.wdio.native.app.v2.0.0.apk`
+- **`deviceName`**: match `adb devices` (e.g. `emulator-5554`) or `ANDROID_DEVICE_NAME` from `.env`
+- **`appiumConfig`**: `{ "host": "<APPIUM_HOST>", "port": <APPIUM_PORT>, "path": "/" }` (defaults `127.0.0.1`, `4723`)
+- `autoGrantPermissions`: `true` when launching the demo app (matches project smoke script)
+
+### iOS (`platform: "ios"`)
+
+- `automationName`: `"XCUITest"`
+- **`appPath`**: absolute path to the **`.app` bundle** — read `IOS_APP_PATH` from `.env` (e.g. `./apps/ios-demo.app`) and `resolve(projectRoot, IOS_APP_PATH)`. The user saying “launch the app” on iOS means this bundle path, not an APK.
+- **`deviceName`**: `IOS_DEVICE_NAME` from `.env` or the simulator name the user specifies
+- **`appiumConfig`**: same host/port/path pattern as Android when using local Appium
+
+## After `start_session` on the demo app
+
+**Do not** run a separate login tool sequence unless the user opts out of built-in auto-login or the response says auto-login failed.
+
+**Opt-out** (launch only, stay logged out): set `WDIO_MCP_DEMO_AUTO_LOGIN=0` (or `false`) in `.cursor/mcp.json` under `wdio-mcp` → `env`, reload the window / restart MCP, then `start_session` again. Or use a non-demo `appPath` (no built-in login). If the user says “only launch” or “don’t log in”, tell them to use that env flag (or a different app); do not assume you must drive the login UI yourself after a successful demo `start_session`.
+
+For **non-demo** apps, there is no built-in login; drive the UI with `click_element` / `set_value` as needed.
+
+Use `get_elements` when you need to see the current hierarchy.
+
+## Teardown
+
+Call **`close_session`** when the user is done or asks to tear down.

@@ -1,0 +1,7 @@
+node_modules/
+artifacts/
+reports/
+.DS_Store
+.env
+.appium/
+*.tgz

@@ -1,0 +1,44 @@
+{
+  "name": "mobile-wdio-kit",
+  "version": "0.1.0",
+  "description": "Scaffold a production-ready WebdriverIO + Appium mobile framework with environment checks (doctor).",
+  "type": "module",
+  "license": "ISC",
+  "author": "Manoj Kumar Salugu",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Assign4/mobile-agentic-wdio-poc.git",
+    "directory": "packages/mobile-wdio-kit"
+  },
+  "bugs": {
+    "url": "https://github.com/Assign4/mobile-agentic-wdio-poc/issues"
+  },
+  "homepage": "https://github.com/Assign4/mobile-agentic-wdio-poc#readme",
+  "keywords": [
+    "webdriverio",
+    "appium",
+    "mobile",
+    "testing",
+    "android",
+    "ios",
+    "cursor",
+    "mcp"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "bin": {
+    "mobile-wdio-kit": "./bin/cli.mjs",
+    "mwk": "./bin/cli.mjs"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "template",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "prepack": "node ./scripts/verify-template.mjs"
+  }
+}

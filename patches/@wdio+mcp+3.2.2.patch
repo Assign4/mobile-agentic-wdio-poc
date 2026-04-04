@@ -1,0 +1,87 @@
+diff --git a/node_modules/@wdio/mcp/lib/server.js b/node_modules/@wdio/mcp/lib/server.js
+index 718f1b4..e9e2a00 100755
+--- a/node_modules/@wdio/mcp/lib/server.js
++++ b/node_modules/@wdio/mcp/lib/server.js
+@@ -3607,6 +3607,65 @@ Note: Unable to set window size (${windowWidth}x${windowHeight}). ${e}`;
+     }]
+   };
+ }
++async function wdioMcpAppendDemoAutoLoginNote(browser, platform2, appPath) {
++  if (process.env.WDIO_MCP_DEMO_AUTO_LOGIN === "0" || process.env.WDIO_MCP_DEMO_AUTO_LOGIN === "false") {
++    return "";
++  }
++  if (!appPath || typeof appPath !== "string") {
++    return "";
++  }
++  const isAndroidDemo = platform2 === "android" && /android\.wdio\.native\.app/i.test(appPath);
++  const isIosDemo = platform2 === "ios" && /ios-demo/i.test(appPath);
++  if (!isAndroidDemo && !isIosDemo) {
++    return "";
++  }
++  const waitMs = 25e3;
++  const user = process.env.MOBILE_USERNAME || "test@webdriver.io";
++  const pass = process.env.MOBILE_PASSWORD || "Test1234!";
++  const clickSel = async (selector) => {
++    await browser.waitUntil(browser.$(selector).isExisting, { timeout: waitMs });
++    await browser.$(selector).scrollIntoView({ block: "center", inline: "center" });
++    await browser.$(selector).click();
++  };
++  const setSel = async (selector, value) => {
++    await browser.waitUntil(browser.$(selector).isExisting, { timeout: waitMs });
++    await browser.$(selector).scrollIntoView({ block: "center", inline: "center" });
++    await browser.$(selector).clearValue();
++    await browser.$(selector).setValue(value);
++  };
++  try {
++    await clickSel("~Login");
++    await clickSel("~button-login-container");
++    await setSel("~input-email", user);
++    await setSel("~input-password", pass);
++    try {
++      await clickSel("~Login-screen");
++    } catch {
++    }
++    await clickSel("~button-LOGIN");
++    const deadline = Date.now() + 2e4;
++    let src = "";
++    while (Date.now() < deadline) {
++      src = await browser.getPageSource();
++      if (/success/i.test(src)) {
++        break;
++      }
++      await new Promise((r) => setTimeout(r, 400));
++    }
++    if (!/success/i.test(src)) {
++      throw new Error("success state not found after tapping LOGIN");
++    }
++    if (isAndroidDemo) {
++      await clickSel('//android.widget.Button[@text="OK"]');
++    } else {
++      await clickSel("~OK");
++    }
++    return "\n\nDemo auto-login: finished (credentials from MOBILE_USERNAME / MOBILE_PASSWORD). Ready for exploration.";
++  } catch (e) {
++    return `
++Demo auto-login failed: ${e}. Session is still active; complete login manually if needed.`;
++  }
++}
+ async function startMobileSession(args) {
+   const { platform: platform2, appPath, app, deviceName, noReset } = args;
+   if (!appPath && !app && noReset !== true) {
+@@ -3640,6 +3699,7 @@ async function startMobileSession(args) {
+     appiumConfig: { hostname: serverConfig.hostname, port: serverConfig.port, path: serverConfig.path },
+     steps: []
+   });
++  const demoLoginNote = await wdioMcpAppendDemoAutoLoginNote(browser, platform2, appPath);
+   const appInfo = appPath ? `
+ App: ${appPath}` : "\nApp: (connected to running app)";
+   const detachNote = shouldAutoDetach ? "\n\n(Auto-detach enabled: session will be preserved on close. Use close_session({ detach: false }) to force terminate.)" : "";
+@@ -3649,7 +3709,7 @@ App: ${appPath}` : "\nApp: (connected to running app)";
+         type: "text",
+         text: `${platform2} app session started with sessionId: ${sessionId}
+ Device: ${deviceName}${appInfo}
+-Appium Server: ${serverConfig.hostname}:${serverConfig.port}${serverConfig.path}${detachNote}`
++Appium Server: ${serverConfig.hostname}:${serverConfig.port}${serverConfig.path}${detachNote}${demoLoginNote}`
+       }
+     ]
+   };
