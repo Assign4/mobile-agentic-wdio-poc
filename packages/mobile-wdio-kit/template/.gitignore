@@ -1,7 +1,10 @@
 node_modules/
 artifacts/
 reports/
+coverage/
 .DS_Store
 .env
 .appium/
 *.tgz
+# Demo APK is large; fetch with: npm run setup:demo-android
+apps/*.apk
