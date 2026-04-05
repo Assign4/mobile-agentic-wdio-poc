@@ -8,3 +8,5 @@ coverage/
 *.tgz
 # Demo APK is large; fetch with: npm run setup:demo-android
 apps/*.apk
+# Demo iOS Simulator .app bundle; fetch with: npm run setup:demo-ios
+apps/ios-demo.app/

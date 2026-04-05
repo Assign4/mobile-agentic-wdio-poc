@@ -1,9 +1,9 @@
 import type { Capabilities, Options } from "@wdio/types";
 import { env } from "../src/env.ts";
-import { sharedMobileConfig } from "./wdio.shared.ts";
+import { sharedCucumberMobileConfig } from "./wdio.shared.cucumber.ts";
 
 export const config: Options.Testrunner & Capabilities.WithRequestedTestrunnerCapabilities = {
-  ...sharedMobileConfig,
+  ...sharedCucumberMobileConfig,
   hostname: env.appiumHost,
   port: env.appiumPort,
   path: "/",
@@ -17,7 +17,6 @@ export const config: Options.Testrunner & Capabilities.WithRequestedTestrunnerCa
       ...(env.ios.platformVersion ? { "appium:platformVersion": env.ios.platformVersion } : {}),
       "appium:app": env.ios.appPath,
       "appium:bundleId": env.ios.bundleId,
-      // Must be false: the login spec asserts on the success dialog then taps OK in code.
       "appium:autoAcceptAlerts": false,
       "appium:noReset": false,
     },

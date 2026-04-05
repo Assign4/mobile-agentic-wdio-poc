@@ -12,16 +12,37 @@ import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
+import { createCliTheme } from "./cli-theme.mjs";
+import {
+  evaluateCreatePreflight,
+  formatPreflightFailure,
+  MIN_NODE_CREATE,
+} from "./create-preflight.mjs";
+import {
+  startSpinner,
+  stopSpinnerForSubprocess,
+  succeedSpinner,
+  shouldShowSpinner,
+} from "./long-task.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-/** Progress lines go to stderr so stdout stays clean for piping; visible during long npm install. */
-function logCreate(message) {
-  process.stderr.write(`mobile-wdio-kit  ${message}\n`);
-}
-
 function templateRoot() {
   return resolve(__dirname, "..", "template");
+}
+
+function npmOnPath() {
+  const cmd = process.platform === "win32" ? "where" : "which";
+  const r = spawnSync(cmd, ["npm"], {
+    encoding: "utf8",
+    shell: process.platform === "win32",
+  });
+  return (r.status ?? 1) === 0;
+}
+
+/** @param {ReturnType<typeof createCliTheme>} theme */
+function logCreate(theme, message) {
+  process.stderr.write(`${theme.dim("mobile-wdio-kit")}  ${message}\n`);
 }
 
 /** Resolve `~/...` even when the shell did not expand it (e.g. quoted path). */
@@ -45,23 +66,34 @@ function kebabName(raw) {
 }
 
 /**
- * @param {{ targetDir: string; force?: boolean; skipInstall?: boolean; skipDemoApk?: boolean; projectName?: string }} opts
+ * @param {{ targetDir: string; force?: boolean; skipInstall?: boolean; skipDemoApk?: boolean; skipDemoIos?: boolean; projectName?: string }} opts
  */
 export function createProject(opts) {
-  logCreate("Starting project setup…");
-
+  const theme = createCliTheme();
   const template = templateRoot();
-  if (!existsSync(join(template, "package.json"))) {
+  const pre = evaluateCreatePreflight({
+    nodeVersion: process.version,
+    npmOnPath: npmOnPath(),
+    templatePkgExists: existsSync(join(template, "package.json")),
+    minNode: MIN_NODE_CREATE,
+  });
+  if (!pre.ok) {
     throw new Error(
-      "Template missing in mobile-wdio-kit. If you develop the kit from git, run: npm run kit:sync (repo root).",
+      formatPreflightFailure(pre, {
+        fail: theme.fail,
+        fix: theme.fix,
+        dim: theme.dim,
+      }),
     );
   }
-  logCreate("Template found — WebdriverIO + Appium scaffold.");
+
+  logCreate(theme, theme.ok("Starting project setup…"));
+  logCreate(theme, "Template found — WebdriverIO + Appium scaffold.");
 
   const targetAbs = resolve(expandUserDir(opts.targetDir));
   const name = kebabName(opts.projectName ?? basename(targetAbs));
-  logCreate(`Target directory: ${targetAbs}`);
-  logCreate(`package.json name: ${name}`);
+  logCreate(theme, `Target directory: ${targetAbs}`);
+  logCreate(theme, `package.json name: ${name}`);
 
   if (existsSync(targetAbs)) {
     const entries = readDirSafe(targetAbs);
@@ -69,15 +101,17 @@ export function createProject(opts) {
       throw new Error(`Target directory is not empty: ${targetAbs}\nUse --force to overwrite.`);
     }
     if (entries.length > 0 && opts.force) {
-      logCreate("Removing existing directory (--force)…");
+      logCreate(theme, theme.warn("Removing existing directory (--force)…"));
       rmSync(targetAbs, { recursive: true, force: true });
     }
   }
 
-  logCreate("Creating folder and copying template files…");
+  const copySpin = startSpinner("Copying template files…", process.stderr);
+  if (!copySpin) logCreate(theme, "Creating folder and copying template files…");
   mkdirSync(targetAbs, { recursive: true });
   cpSync(template, targetAbs, { recursive: true });
-  logCreate("Template copy complete (configs, specs, scripts, patches).");
+  succeedSpinner(copySpin, "Template copy complete (configs, specs, scripts, patches).");
+  if (!copySpin) logCreate(theme, "Template copy complete (configs, specs, scripts, patches).");
 
   const pkgPath = join(targetAbs, "package.json");
   const pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
@@ -86,20 +120,26 @@ export function createProject(opts) {
   if (!pkg.description) {
     pkg.description = "WebdriverIO mobile tests + Appium + Cursor MCP (scaffolded).";
   }
-  logCreate("Writing package.json (project name, public package)…");
+  logCreate(theme, "Writing package.json (project name, public package)…");
   writeFileSync(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`);
 
   const envExample = join(targetAbs, ".env.example");
   const envDest = join(targetAbs, ".env");
   if (existsSync(envExample) && !existsSync(envDest)) {
-    logCreate("Creating .env from .env.example…");
+    logCreate(theme, "Creating .env from .env.example…");
     copyFileSync(envExample, envDest);
   } else if (existsSync(envDest)) {
-    logCreate("Keeping existing .env (already present).");
+    logCreate(theme, "Keeping existing .env (already present).");
   }
 
   if (!opts.skipInstall) {
-    logCreate("Running npm install in the new project (this often takes 1–3 minutes)…");
+    const spin = startSpinner("Preparing npm install (often 1–3 minutes)…", process.stderr);
+    stopSpinnerForSubprocess(spin, "Running npm install — full output below (often 1–3 minutes)");
+    if (!spin) {
+      logCreate(theme, "Running npm install in the new project (this often takes 1–3 minutes)…");
+    } else {
+      process.stderr.write(theme.dim("────────────────────────────────────────\n"));
+    }
     const npm = process.platform === "win32" ? "npm.cmd" : "npm";
     const install = spawnSync(npm, ["install"], {
       cwd: targetAbs,
@@ -108,41 +148,118 @@ export function createProject(opts) {
       env: process.env,
     });
     if (install.status !== 0) {
-      throw new Error("`npm install` failed in the new project.");
+      throw new Error(
+        "`npm install` failed in the new project. Fix registry/network, then cd into the project and run: npm install",
+      );
     }
-    logCreate("npm install finished.");
+    if (shouldShowSpinner(process.stderr)) {
+      process.stderr.write(theme.ok("✓ npm install finished\n"));
+    } else {
+      logCreate(theme, "npm install finished.");
+    }
   } else {
-    logCreate("Skipped npm install (--no-install). Run npm install inside the project when ready.");
+    logCreate(
+      theme,
+      theme.warn(
+        "Skipped npm install (--no-install). Run npm install inside the project when ready.",
+      ),
+    );
   }
 
   if (!opts.skipDemoApk && !opts.skipInstall) {
     const dl = join(targetAbs, "scripts", "download-demo-android.mjs");
     if (existsSync(dl)) {
-      logCreate("Downloading WebdriverIO native demo Android APK (~105 MB)…");
+      const dSpin = startSpinner("Downloading demo Android APK (~105 MB)…", process.stderr);
+      stopSpinnerForSubprocess(dSpin, "Downloading demo APK — progress below");
+      if (!dSpin) {
+        logCreate(theme, "Downloading WebdriverIO native demo Android APK (~105 MB)…");
+      } else {
+        process.stderr.write(theme.dim("────────────────────────────────────────\n"));
+      }
       const r = spawnSync(process.execPath, [dl], {
         cwd: targetAbs,
         stdio: "inherit",
         env: process.env,
       });
       if (r.status !== 0) {
-        console.warn(
-          "[mobile-wdio-kit] Demo APK download failed — run `npm run setup:demo-android` inside the project.",
+        process.stderr.write(
+          theme.warn(
+            "[mobile-wdio-kit] Demo APK download failed — run `npm run setup:demo-android` inside the project.\n",
+          ),
         );
+      } else if (shouldShowSpinner(process.stderr)) {
+        process.stderr.write(theme.ok("✓ Demo APK saved under apps/.\n"));
       } else {
-        logCreate("Demo APK saved under apps/.");
+        logCreate(theme, "Demo APK saved under apps/.");
       }
     }
   } else if (opts.skipDemoApk) {
     logCreate(
-      "Skipped demo APK (--no-demo-apk). Set ANDROID_APP_PATH or run npm run setup:demo-android later.",
+      theme,
+      theme.dim(
+        "Skipped demo APK (--no-demo-apk). Set ANDROID_APP_PATH or run npm run setup:demo-android later.",
+      ),
     );
   } else if (opts.skipInstall) {
     logCreate(
-      "Skipped demo APK (npm install was skipped — run setup:demo-android after npm install).",
+      theme,
+      theme.dim(
+        "Skipped demo APK (npm install was skipped — run setup:demo-android after npm install).",
+      ),
     );
   }
 
-  logCreate("Setup complete.");
+  if (process.platform === "darwin" && !opts.skipDemoIos && !opts.skipInstall) {
+    const dlIos = join(targetAbs, "scripts", "download-demo-ios.mjs");
+    if (existsSync(dlIos)) {
+      const iSpin = startSpinner("Downloading demo iOS app (~16 MB zip)…", process.stderr);
+      stopSpinnerForSubprocess(iSpin, "Downloading demo iOS app — progress below");
+      if (!iSpin) {
+        logCreate(theme, "Downloading WebdriverIO native demo iOS Simulator app (~16 MB zip)…");
+      } else {
+        process.stderr.write(theme.dim("────────────────────────────────────────\n"));
+      }
+      const ri = spawnSync(process.execPath, [dlIos], {
+        cwd: targetAbs,
+        stdio: "inherit",
+        env: process.env,
+      });
+      if (ri.status !== 0) {
+        process.stderr.write(
+          theme.warn(
+            "[mobile-wdio-kit] Demo iOS app download failed — run `npm run setup:demo-ios` inside the project.\n",
+          ),
+        );
+      } else if (shouldShowSpinner(process.stderr)) {
+        process.stderr.write(theme.ok("✓ Demo iOS app saved under apps/ios-demo.app.\n"));
+      } else {
+        logCreate(theme, "Demo iOS app saved under apps/ios-demo.app.");
+      }
+    }
+  } else if (opts.skipDemoIos) {
+    logCreate(
+      theme,
+      theme.dim(
+        "Skipped demo iOS app (--no-demo-ios). Set IOS_APP_PATH or run npm run setup:demo-ios later.",
+      ),
+    );
+  } else if (process.platform !== "darwin") {
+    logCreate(
+      theme,
+      theme.dim(
+        "Skipped demo iOS app (not macOS — run setup:demo-ios on a Mac if you need the Simulator build).",
+      ),
+    );
+  } else if (opts.skipInstall) {
+    logCreate(
+      theme,
+      theme.dim(
+        "Skipped demo iOS app (npm install was skipped — run setup:demo-ios after npm install).",
+      ),
+    );
+  }
+
+  logCreate(theme, theme.ok("Setup complete."));
   return { targetAbs, name };
 }
 

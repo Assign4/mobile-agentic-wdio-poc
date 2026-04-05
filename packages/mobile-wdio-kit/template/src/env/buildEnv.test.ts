@@ -22,8 +22,10 @@ describe("buildEnv", () => {
     expect(e.android.cloudPlatformVersion).toBe("14");
     expect(e.android.cloudApp).toBe("");
     expect(e.ios.deviceName).toBe("iPhone 15");
+    expect(e.ios.udid).toBe("");
+    expect(e.ios.platformVersion).toBe("");
     expect(e.ios.appPath).toBe(resolve(cwd, "apps/ios-demo.app"));
-    expect(e.ios.bundleId).toBe("com.example.demo");
+    expect(e.ios.bundleId).toBe("org.wdiodemoapp");
     expect(e.ios.cloudDevice).toBe("iPhone 15");
     expect(e.ios.cloudPlatformVersion).toBe("17");
     expect(e.ios.cloudApp).toBe("");
@@ -51,6 +53,8 @@ describe("buildEnv", () => {
         ANDROID_CLOUD_PLATFORM_VERSION: "15",
         ANDROID_CLOUD_APP: "lt://android-app",
         IOS_DEVICE_NAME: "iPhone 16",
+        IOS_UDID: "00000000-0000-4000-8000-000000000001",
+        IOS_PLATFORM_VERSION: "18.0",
         IOS_APP_PATH: "./build/My.app",
         IOS_BUNDLE_ID: "com.app.id",
         IOS_CLOUD_DEVICE: "iPhone 14",
@@ -76,6 +80,8 @@ describe("buildEnv", () => {
     expect(e.android.cloudPlatformVersion).toBe("15");
     expect(e.android.cloudApp).toBe("lt://android-app");
     expect(e.ios.deviceName).toBe("iPhone 16");
+    expect(e.ios.udid).toBe("00000000-0000-4000-8000-000000000001");
+    expect(e.ios.platformVersion).toBe("18.0");
     expect(e.ios.appPath).toBe(resolve(cwd, "build/My.app"));
     expect(e.ios.bundleId).toBe("com.app.id");
     expect(e.ios.cloudDevice).toBe("iPhone 14");

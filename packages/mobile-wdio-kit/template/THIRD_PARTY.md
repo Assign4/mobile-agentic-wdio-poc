@@ -20,6 +20,12 @@ The optional setup script downloads the **WebdriverIO native demo app** binary f
 
 Verify the license in that repository before redistributing the APK or using it in commercial contexts.
 
+## Demo iOS Simulator application (.app)
+
+The optional **`npm run setup:demo-ios`** script downloads a **zip** from the same upstream project (default URL in `scripts/download-demo-ios.mjs`), extracts the Simulator `.app`, and installs it as `apps/ios-demo.app` for local runs and MCP. That binary is subject to **their** license and terms.
+
+- Source / releases: [webdriverio/native-demo-app](https://github.com/webdriverio/native-demo-app)
+
 ## npm dependencies
 
 Runtime and development dependencies (WebdriverIO, Appium, drivers, Vitest, `patch-package`, etc.) are each licensed under **their own** terms (MIT, Apache-2.0, and others). After `npm install`, see each package’s `LICENSE` or `package.json` `license` field, or run:

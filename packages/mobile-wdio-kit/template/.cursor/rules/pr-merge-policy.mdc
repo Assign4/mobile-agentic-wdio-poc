@@ -1,0 +1,14 @@
+---
+description: PR merge bar — approval, resolved comments, CI verify
+alwaysApply: true
+---
+
+# Pull request merge policy
+
+Do not treat a change as merge-ready until:
+
+1. The maintainer has given **at least one approving review** (or Code Owners approval if configured).
+2. **All review threads are resolved** on the PR.
+3. **CI passes**, including the job that runs **`npm run ci:verify`** (GitHub check name is usually **`CI / verify`**).
+
+Human-facing detail: [CONTRIBUTING.md](../../CONTRIBUTING.md).
