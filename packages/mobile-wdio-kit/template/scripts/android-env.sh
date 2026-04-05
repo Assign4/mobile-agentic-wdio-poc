@@ -47,6 +47,28 @@ android_env_has_device() {
     "$ADB_BIN" devices | awk 'NR>1 && $2=="device" { found=1 } END { exit found ? 0 : 1 }'
 }
 
+# Appium 3 installs platform drivers separately; WDIO’s embedded server has none until you add one.
+android_env_require_appium_uiautomator2() {
+  root="${1:-}"
+  if [ -z "$root" ]; then
+    return 0
+  fi
+  ap="$root/node_modules/.bin/appium"
+  if [ ! -x "$ap" ]; then
+    return 0
+  fi
+  # Match doctor.mjs: Appium may print the driver table on stderr; merge streams.
+  drivers_out=$("$ap" driver list --installed 2>&1) || true
+  if printf '%s\n' "$drivers_out" | grep -qi uiautomator2; then
+    return 0
+  fi
+  echo "Appium has no UiAutomator2 driver (required for Android sessions)." >&2
+  echo "Install once from the project root:" >&2
+  echo "  npm run appium:driver:android" >&2
+  echo "Then re-run this script. (Check: npm run doctor)" >&2
+  exit 1
+}
+
 android_env_ensure_emulator() {
   android_env_prepare_paths
 

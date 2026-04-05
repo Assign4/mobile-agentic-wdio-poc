@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
+import { createDoctorTheme, formatDoctorText } from "./doctor-format.mjs";
 
 const MIN_NODE = 18;
 
@@ -122,6 +123,27 @@ export async function runDoctor(opts = {}) {
       ? undefined
       : "Run `npm run setup:demo-android` in this project (or set ANDROID_APP_PATH to your app).",
   });
+
+  const demoIosApp = join(cwd, "apps", "ios-demo.app");
+  const iosAppOk = existsSync(demoIosApp);
+  if (process.platform === "darwin") {
+    add({
+      ok: iosAppOk,
+      level: iosAppOk ? "ok" : "warn",
+      title: "Demo iOS app (apps/ios-demo.app)",
+      detail: iosAppOk ? demoIosApp : "missing",
+      fix: iosAppOk
+        ? undefined
+        : "Run `npm run setup:demo-ios` in this project (or set IOS_APP_PATH to your .app bundle).",
+    });
+  } else {
+    add({
+      ok: true,
+      level: "ok",
+      title: "Demo iOS app (apps/ios-demo.app)",
+      detail: "skipped (not macOS)",
+    });
+  }
 
   const envFile = join(cwd, ".env");
   add({
@@ -277,29 +299,11 @@ export async function runDoctor(opts = {}) {
     };
   }
 
-  const icon = (c) => (c.level === "ok" ? "✓" : c.level === "warn" ? "!" : "✗");
-
-  const lines = [
-    "",
-    "mobile-wdio-kit — doctor",
-    "========================",
-    "",
-    ...checks.map(
-      (c) =>
-        `${icon(c)} ${c.title}${c.detail ? `\n    ${c.detail.split("\n").join("\n    ")}` : ""}${c.fix ? `\n    → ${c.fix}` : ""}`,
-    ),
-    "",
-    failed.length
-      ? `Result: ${failed.length} required check(s) failed.`
-      : warns.length
-        ? `Result: OK (with ${warns.length} warning(s)).`
-        : "Result: all checks passed.",
-    "",
-  ];
+  const text = formatDoctorText(checks, failed, warns, createDoctorTheme());
 
   return {
     ok: failed.length === 0,
-    text: lines.join("\n"),
+    text,
     checks,
   };
 }

@@ -45,11 +45,13 @@ export function buildEnv(vars: NodeJS.ProcessEnv = process.env, cwd: string = pr
 
     ios: {
       deviceName: optional(vars, "IOS_DEVICE_NAME", "iPhone 15"),
+      udid: optional(vars, "IOS_UDID"),
+      platformVersion: optional(vars, "IOS_PLATFORM_VERSION"),
       appPath: (() => {
         const p = optional(vars, "IOS_APP_PATH", "./apps/ios-demo.app");
         return resolve(cwd, p);
       })(),
-      bundleId: optional(vars, "IOS_BUNDLE_ID", "com.example.demo"),
+      bundleId: optional(vars, "IOS_BUNDLE_ID", "org.wdiodemoapp"),
       cloudDevice: optional(vars, "IOS_CLOUD_DEVICE", "iPhone 15"),
       cloudPlatformVersion: optional(vars, "IOS_CLOUD_PLATFORM_VERSION", "17"),
       cloudApp: optional(vars, "IOS_CLOUD_APP"),

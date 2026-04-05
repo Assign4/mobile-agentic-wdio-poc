@@ -1,6 +1,6 @@
 {
   "name": "mobile-wdio-kit",
-  "version": "0.1.0",
+  "version": "0.2.1",
   "description": "Scaffold a production-ready WebdriverIO + Appium mobile framework with environment checks (doctor).",
   "type": "module",
   "license": "ISC",
@@ -35,11 +35,17 @@
     "bin",
     "lib",
     "template",
+    "CHANGELOG.md",
     "LICENSE",
     "README.md"
   ],
+  "dependencies": {
+    "ora": "^8.2.0",
+    "picocolors": "^1.1.1"
+  },
   "scripts": {
-    "prepack": "node ./scripts/verify-template.mjs",
-    "kit:sync": "node ./scripts/run-kit-sync.mjs"
+    "prepack": "node ./scripts/verify-template.mjs && node --test test/*.test.mjs && node ./scripts/verify-create-noninteractive.mjs",
+    "kit:sync": "node ./scripts/run-kit-sync.mjs",
+    "test:unit": "node --test test/*.test.mjs"
   }
 }

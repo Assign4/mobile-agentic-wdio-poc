@@ -1,34 +1,38 @@
+import type { ScreenActions } from "../actions/ScreenActions.ts";
 import { nativeAlertLocators } from "../locators/nativeAlert.locators.ts";
+import { BasePage } from "./Base.page.ts";
 
-const platform = (): "android" | "ios" => (driver.isIOS ? "ios" : "android");
+export class NativeAlertPage extends BasePage {
+  constructor(actions?: ScreenActions) {
+    super(actions);
+  }
 
-export class NativeAlertPage {
+  private sel(name: keyof (typeof nativeAlertLocators)["android"]): string {
+    return nativeAlertLocators[this.platform()][name];
+  }
+
   async waitForDisplay(): Promise<void> {
     if (driver.isIOS) {
-      await $(nativeAlertLocators[platform()].alert).waitForExist({ timeout: 11_000 });
+      await this.a.waitForExist(this.sel("alert"), 11_000);
       return;
     }
 
-    await $(nativeAlertLocators[platform()].alertTitle).waitForExist({
-      timeout: 11_000,
-    });
+    await this.a.waitForExist(this.sel("alertTitle"), 11_000);
   }
 
   async expectSuccessMessage(): Promise<void> {
     if (driver.isIOS) {
-      await expect($(nativeAlertLocators[platform()].alert)).toHaveText(
-        expect.stringContaining("Success"),
-      );
+      await expect($(this.sel("alert"))).toHaveText(expect.stringContaining("Success"));
       return;
     }
 
-    const title = await $(nativeAlertLocators[platform()].alertTitle).getText();
-    const message = await $(nativeAlertLocators[platform()].alertMessage).getText();
+    const title = await $(this.sel("alertTitle")).getText();
+    const message = await $(this.sel("alertMessage")).getText();
     expect(`${title}\n${message}`).toContain("Success");
   }
 
   async confirm(): Promise<void> {
-    await $(nativeAlertLocators[platform()].okButton).click();
+    await this.a.click(this.sel("okButton"));
   }
 }
 

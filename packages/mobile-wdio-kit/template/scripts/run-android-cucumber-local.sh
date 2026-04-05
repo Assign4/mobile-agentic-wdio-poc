@@ -9,4 +9,4 @@ PROJECT_ROOT=$(android_env_project_root)
 android_env_require_appium_uiautomator2 "$PROJECT_ROOT"
 android_env_ensure_emulator
 
-exec "$PROJECT_ROOT/node_modules/.bin/wdio" run "$PROJECT_ROOT/configs/wdio.local.android.conf.ts" "$@"
+exec "$PROJECT_ROOT/node_modules/.bin/wdio" run "$PROJECT_ROOT/configs/wdio.local.android.cucumber.conf.ts" "$@"

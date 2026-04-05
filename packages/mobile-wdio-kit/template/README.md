@@ -2,7 +2,7 @@
 
 WebdriverIO **Mocha** specs for native **Android / iOS**, plus official **`@wdio/mcp`** so Cursor can drive the app from chat. No Cucumber and no custom MCP server—configs, page objects, locators, env, Vitest unit tests, and a small **`patch-package`** patch on `@wdio/mcp` so `start_session` can complete demo login in one step.
 
-**Open source:** [LICENSE](./LICENSE) (ISC). **Trademarks, demo APK, npm deps, patches:** read [THIRD_PARTY.md](./THIRD_PARTY.md) before you publish or redistribute. **Publishing the CLI:** [RELEASING.md](./RELEASING.md).
+**Open source:** [LICENSE](./LICENSE) (ISC). **Trademarks, demo APK, npm deps, patches:** read [THIRD_PARTY.md](./THIRD_PARTY.md) before you publish or redistribute. **Publishing the CLI:** [RELEASING.md](./RELEASING.md). **Pull requests:** [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Layout
 
@@ -12,7 +12,7 @@ src/env.ts         dotenv-backed settings
 src/specs/         *.spec.ts (Mocha)
 src/pages/         small screen helpers
 src/locators/      Android / iOS selectors
-scripts/           android-env.sh, ensure-appium.mjs, mcp-with-appium.sh (Cursor MCP entry), ping-appium.mjs, run-mcp-android-smoke.sh
+scripts/           android-env.sh, ios-env.sh, ensure-appium.mjs, mcp-with-appium.sh / mcp-with-appium-ios.sh, run-android-local.sh, run-ios-local.sh, …
 patches/           patch-package diff for @wdio/mcp (demo auto-login after start_session)
 .cursor/rules/     wdio-mcp-mobile.mdc (agent: session + demo auto-login, Android/iOS app paths)
 .cursor/mcp.json → `sh scripts/mcp-with-appium.sh` (do **not** use `npm run mcp:server` as the MCP command: npm prints to stdout and breaks JSON-RPC on stdio)
@@ -21,12 +21,12 @@ patches/           patch-package diff for @wdio/mcp (demo auto-login after start
 ## Setup
 
 1. Copy `.env.example` → `.env`.
-2. Put apps under `apps/` or set `ANDROID_APP_PATH` / `IOS_APP_PATH`.
-3. Install drivers: `npm run appium:driver:android` (and iOS if needed).
+2. Put apps under `apps/` or set `ANDROID_APP_PATH` / `IOS_APP_PATH`. On **macOS**, `npm run setup:demo-ios` downloads the WebdriverIO demo Simulator `.app` into `apps/ios-demo.app`.
+3. Install drivers: `npm run appium:driver:android` (and `npm run appium:driver:ios` on macOS if needed).
 
 ## Scaffold & environment check (`mobile-wdio-kit`)
 
-The **`mobile-wdio-kit`** package (`packages/mobile-wdio-kit`) copies an embedded **template** of this repo, then runs **`npm install`**, **`patch-package`**, copies **`.env.example` → `.env`**, and downloads the **WebdriverIO demo Android APK** (APKs are not shipped inside the npm tarball).
+The **`mobile-wdio-kit`** package (`packages/mobile-wdio-kit`) copies an embedded **template** of this repo, then runs **`npm install`**, **`patch-package`**, copies **`.env.example` → `.env`**, downloads the **WebdriverIO demo Android APK**, and on **macOS** the **demo iOS Simulator `.app`** (binaries are not shipped inside the npm tarball).
 
 **Where projects are created:** `create <path>` resolves the directory with Node’s `path.resolve()` from your **shell’s current working directory**—not from the global npm install location. So `mobile-wdio-kit create ~/Desktop/foo` creates on the Desktop regardless of whether you ran the command from `~/Projects` or elsewhere (and `~/...` works even inside quotes thanks to CLI tilde expansion).
 
@@ -48,7 +48,7 @@ cd mobile-agentic-wdio-poc
 npm install -g ./packages/mobile-wdio-kit
 ```
 
-**Doctor** checks Node, Android SDK / `adb`, demo APK, `.env`, Appium drivers, Xcode/simctl (macOS), and Appium `/status`. Here: `npm run doctor` or `npm run setup:demo-android` (APK only). Generated apps use a **vendored** doctor so `npm install` does not require this package on the registry.
+**Doctor** checks Node, Android SDK / `adb`, demo APK, demo iOS `.app` (macOS), `.env`, Appium drivers, Xcode/simctl (macOS), and Appium `/status`. Here: `npm run doctor`, `npm run setup:demo-android`, or `npm run setup:demo-ios`. Generated apps use a **vendored** doctor so `npm install` does not require this package on the registry.
 
 Maintainers: `npm run kit:sync`, then publish—see [RELEASING.md](./RELEASING.md) and [packages/mobile-wdio-kit/README.md](./packages/mobile-wdio-kit/README.md).
 
@@ -56,7 +56,7 @@ Maintainers: `npm run kit:sync`, then publish—see [RELEASING.md](./RELEASING.m
 
 ```bash
 npm run test:android    # ensures emulator if none online, then WDIO + Appium service
-npm run test:ios        # local Appium; you provide simulator/device
+npm run test:ios        # macOS: boots matching simulator (see ios-env.sh), then WDIO + Appium
 npm run test:cloud:android
 npm run test:cloud:ios
 ```
@@ -65,7 +65,7 @@ Demo credentials: `test@webdriver.io` / `Test1234!` (override with `MOBILE_USERN
 
 ## Cursor / MCP (prompt-driven testing)
 
-With the default `.cursor/mcp.json`, **Cursor starts the MCP server via `scripts/mcp-with-appium.sh`**. That script starts **Appium in the background** if nothing is listening on `APPIUM_HOST` / `APPIUM_PORT` (logs under `artifacts/appium-mcp.log`), then runs `wdio-mcp`. If no device is online, it **starts an AVD in the background** but does not wait for a cold boot (Cursor’s MCP client times out if the launcher blocks for minutes). Prefer `adb devices` showing `device` before you enable the MCP server, or wait for the emulator to finish booting before calling `start_session`.
+With the default `.cursor/mcp.json`, **Cursor starts the MCP server via `scripts/mcp-with-appium.sh`** (Android). For **iOS**, point MCP at `scripts/mcp-with-appium-ios.sh` (or `npm run mcp:server:with-appium:ios` with the same env as the script). The Android launcher starts **Appium in the background** if nothing is listening on `APPIUM_HOST` / `APPIUM_PORT` (logs under `artifacts/appium-mcp.log`), then runs `wdio-mcp`. If no device is online, it **starts an AVD in the background** but does not wait for a cold boot (Cursor’s MCP client times out if the launcher blocks for minutes). Prefer `adb devices` showing `device` before you enable the MCP server, or wait for the emulator to finish booting before calling `start_session`. For iOS, boot the Simulator (or wait after `simctl boot`) before `start_session`.
 
 **Do not** set the MCP command to `npm run mcp:server`: npm echoes script lines to stdout, which corrupts the MCP protocol and produces errors like `Unexpected token '>'` / `is not valid JSON`.
 

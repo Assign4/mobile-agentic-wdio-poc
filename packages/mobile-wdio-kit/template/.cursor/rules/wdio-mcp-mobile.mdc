@@ -7,7 +7,7 @@ alwaysApply: true
 
 The MCP server exposes tools with **fixed names** (for example `start_session`). You cannot rename the tool in Cursor; treat the user’s chat as **natural language** that you map to those tools.
 
-This repo **patches `@wdio/mcp`** (`patches/@wdio+mcp+*.patch`, applied on `npm install`): for the **WebdriverIO demo APK** (`android.wdio.native.app` in `appPath`) and **iOS demo** (`ios-demo` in `appPath`), **`start_session` alone** completes login using `MOBILE_USERNAME` / `MOBILE_PASSWORD` (loaded via `scripts/mcp-with-appium.sh` sourcing `.env`). The session response text mentions demo auto-login when it succeeded.
+This repo **patches `@wdio/mcp`** (`patches/@wdio+mcp+*.patch`, applied on `npm install`): for the **WebdriverIO demo APK** (`android.wdio.native.app` in `appPath`) and **iOS demo** (`ios-demo` in `appPath`), **`start_session` alone** completes login using `MOBILE_USERNAME` / `MOBILE_PASSWORD` (loaded via `scripts/mcp-with-appium.sh` or **`scripts/mcp-with-appium-ios.sh`** sourcing `.env`). The session response text mentions demo auto-login when it succeeded.
 
 ## Map user intent → `start_session`
 

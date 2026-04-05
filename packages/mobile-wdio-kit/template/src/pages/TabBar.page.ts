@@ -1,18 +1,23 @@
+import type { ScreenActions } from "../actions/ScreenActions.ts";
 import { tabBarLocators } from "../locators/tabBar.locators.ts";
+import { BasePage } from "./Base.page.ts";
 
-const platform = (): "android" | "ios" => (driver.isIOS ? "ios" : "android");
+export class TabBarPage extends BasePage {
+  constructor(actions?: ScreenActions) {
+    super(actions);
+  }
 
-const sel = (name: keyof (typeof tabBarLocators)["android"]): string =>
-  tabBarLocators[platform()][name];
+  private sel(name: keyof (typeof tabBarLocators)["android"]): string {
+    return tabBarLocators[this.platform()][name];
+  }
 
-export class TabBarPage {
   async waitForDisplay(): Promise<void> {
-    await $(sel("homeTab")).waitForDisplayed({ timeout: 20_000 });
+    await this.a.waitForDisplayed(this.sel("homeTab"));
   }
 
   async openLogin(): Promise<void> {
     await this.waitForDisplay();
-    await $(sel("loginTab")).click();
+    await this.a.click(this.sel("loginTab"));
   }
 }
 

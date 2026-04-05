@@ -8,7 +8,15 @@ export default defineConfig({
       provider: "v8",
       reporter: ["text", "json-summary"],
       include: ["src/**/*.ts"],
-      exclude: ["src/specs/**", "src/**/*.test.ts", "src/env.ts", "src/test-utils/**"],
+      exclude: [
+        "src/specs/**",
+        "src/**/*.test.ts",
+        "src/env.ts",
+        "src/test-utils/**",
+        "src/steps/**",
+        "src/support/**",
+        "src/features/**",
+      ],
       thresholds: {
         lines: 90,
         functions: 90,
