@@ -1,10 +1,7 @@
 import { resolve } from "node:path";
 
-const optional = (
-  vars: NodeJS.ProcessEnv,
-  name: string,
-  fallback = "",
-): string => vars[name] ?? fallback;
+const optional = (vars: NodeJS.ProcessEnv, name: string, fallback = ""): string =>
+  vars[name] ?? fallback;
 
 const required = (vars: NodeJS.ProcessEnv, name: string): string => {
   const value = vars[name];
@@ -20,10 +17,7 @@ const toNumber = (value: string, fallback: number): number => {
 export type MobileEnv = ReturnType<typeof buildEnv>;
 
 /** Build env from a process-like map (testable; no dotenv). */
-export function buildEnv(
-  vars: NodeJS.ProcessEnv = process.env,
-  cwd: string = process.cwd(),
-) {
+export function buildEnv(vars: NodeJS.ProcessEnv = process.env, cwd: string = process.cwd()) {
   return {
     appiumHost: optional(vars, "APPIUM_HOST", "127.0.0.1"),
     appiumPort: toNumber(optional(vars, "APPIUM_PORT", "4723"), 4723),
@@ -42,16 +36,10 @@ export function buildEnv(
       udid: optional(vars, "ANDROID_UDID"),
       appPath: (() => {
         const p = optional(vars, "ANDROID_APP_PATH");
-        return p
-          ? resolve(cwd, p)
-          : resolve(cwd, "apps/android.wdio.native.app.v2.0.0.apk");
+        return p ? resolve(cwd, p) : resolve(cwd, "apps/android.wdio.native.app.v2.0.0.apk");
       })(),
       cloudDevice: optional(vars, "ANDROID_CLOUD_DEVICE", "Galaxy S24"),
-      cloudPlatformVersion: optional(
-        vars,
-        "ANDROID_CLOUD_PLATFORM_VERSION",
-        "14",
-      ),
+      cloudPlatformVersion: optional(vars, "ANDROID_CLOUD_PLATFORM_VERSION", "14"),
       cloudApp: optional(vars, "ANDROID_CLOUD_APP"),
     },
 
@@ -63,11 +51,7 @@ export function buildEnv(
       })(),
       bundleId: optional(vars, "IOS_BUNDLE_ID", "com.example.demo"),
       cloudDevice: optional(vars, "IOS_CLOUD_DEVICE", "iPhone 15"),
-      cloudPlatformVersion: optional(
-        vars,
-        "IOS_CLOUD_PLATFORM_VERSION",
-        "17",
-      ),
+      cloudPlatformVersion: optional(vars, "IOS_CLOUD_PLATFORM_VERSION", "17"),
       cloudApp: optional(vars, "IOS_CLOUD_APP"),
     },
   };

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { loginLocators } from "../locators/login.locators.ts";
 import { setupWdioTestContext } from "../test-utils/wdioTestGlobals.ts";
 import { LoginPage } from "./Login.page.ts";
@@ -33,9 +33,7 @@ describe("LoginPage", () => {
     const page = new LoginPage();
     await page.login("user@x.com", "pw");
 
-    expect(chainFor(L.usernameField).setValue).toHaveBeenCalledWith(
-      "user@x.com",
-    );
+    expect(chainFor(L.usernameField).setValue).toHaveBeenCalledWith("user@x.com");
     expect(chainFor(L.passwordField).setValue).toHaveBeenCalledWith("pw");
     expect(chainFor(L.screenTitle).click).toHaveBeenCalled();
     expect(chainFor(L.signInButton).scrollIntoView).toHaveBeenCalledWith({

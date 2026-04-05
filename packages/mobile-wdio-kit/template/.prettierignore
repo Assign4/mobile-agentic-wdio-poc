@@ -1,0 +1,10 @@
+node_modules
+coverage
+apps
+artifacts
+reports
+.appium
+packages/mobile-wdio-kit/template
+patches
+*.tgz
+package-lock.json

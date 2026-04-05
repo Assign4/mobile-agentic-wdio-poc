@@ -4,8 +4,7 @@ import { sharedMobileConfig } from "./wdio.shared.ts";
 
 const { user, key } = requireCloudCredentials();
 
-export const config: Options.Testrunner &
-  Capabilities.WithRequestedTestrunnerCapabilities = {
+export const config: Options.Testrunner & Capabilities.WithRequestedTestrunnerCapabilities = {
   ...sharedMobileConfig,
   user,
   key,

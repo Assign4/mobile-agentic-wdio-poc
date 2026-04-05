@@ -1,9 +1,6 @@
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import {
-  buildEnv,
-  requireCloudCredentialsFrom,
-} from "./buildEnv.ts";
+import { buildEnv, requireCloudCredentialsFrom } from "./buildEnv.ts";
 
 const cwd = "/project/root";
 
@@ -20,9 +17,7 @@ describe("buildEnv", () => {
     expect(e.cloudPath).toBe("/wd/hub");
     expect(e.android.deviceName).toBe("Android Emulator");
     expect(e.android.udid).toBe("");
-    expect(e.android.appPath).toBe(
-      resolve(cwd, "apps/android.wdio.native.app.v2.0.0.apk"),
-    );
+    expect(e.android.appPath).toBe(resolve(cwd, "apps/android.wdio.native.app.v2.0.0.apk"));
     expect(e.android.cloudDevice).toBe("Galaxy S24");
     expect(e.android.cloudPlatformVersion).toBe("14");
     expect(e.android.cloudApp).toBe("");
@@ -96,9 +91,7 @@ describe("buildEnv", () => {
 
   it("uses default Android APK when ANDROID_APP_PATH is empty string", () => {
     const e = buildEnv({ ANDROID_APP_PATH: "" }, cwd);
-    expect(e.android.appPath).toBe(
-      resolve(cwd, "apps/android.wdio.native.app.v2.0.0.apk"),
-    );
+    expect(e.android.appPath).toBe(resolve(cwd, "apps/android.wdio.native.app.v2.0.0.apk"));
   });
 });
 
@@ -113,14 +106,14 @@ describe("requireCloudCredentialsFrom", () => {
   });
 
   it("throws when CLOUD_USERNAME is missing", () => {
-    expect(() =>
-      requireCloudCredentialsFrom({ CLOUD_ACCESS_KEY: "k" }),
-    ).toThrowError("Missing required environment variable: CLOUD_USERNAME");
+    expect(() => requireCloudCredentialsFrom({ CLOUD_ACCESS_KEY: "k" })).toThrowError(
+      "Missing required environment variable: CLOUD_USERNAME",
+    );
   });
 
   it("throws when CLOUD_ACCESS_KEY is missing", () => {
-    expect(() =>
-      requireCloudCredentialsFrom({ CLOUD_USERNAME: "u" }),
-    ).toThrowError("Missing required environment variable: CLOUD_ACCESS_KEY");
+    expect(() => requireCloudCredentialsFrom({ CLOUD_USERNAME: "u" })).toThrowError(
+      "Missing required environment variable: CLOUD_ACCESS_KEY",
+    );
   });
 });

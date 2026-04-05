@@ -39,6 +39,7 @@
     "README.md"
   ],
   "scripts": {
-    "prepack": "node ./scripts/verify-template.mjs"
+    "prepack": "node ./scripts/verify-template.mjs",
+    "kit:sync": "node ./scripts/run-kit-sync.mjs"
   }
 }

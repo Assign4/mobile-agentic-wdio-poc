@@ -153,6 +153,16 @@ Use these if you need to run the MCP server outside Cursor’s managed process.
 npm run validate
 ```
 
+**Lint, format, and CI parity (no emulator):**
+
+```bash
+npm run ci:verify        # Prettier check + ESLint + TypeScript + Vitest (matches GitHub Actions + husky pre-push)
+npm run lint             # ESLint only
+npm run format           # Prettier --write
+```
+
+On **commit**, **lint-staged** runs ESLint + Prettier on staged files. On **push**, **husky** runs `npm run ci:verify`. **GitHub Actions** runs the same `ci:verify` job on pushes and pull requests to `main` / `master`.
+
 ## Failure artifacts
 
 On a failed spec, WDIO saves `artifacts/screenshots/<test-title>.png` (see `configs/wdio.shared.ts`).

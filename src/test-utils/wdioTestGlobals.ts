@@ -64,9 +64,7 @@ export function stubExpectWebdriverStyle(): {
         return {
           toContain: (sub: string) => {
             if (!actual.includes(sub)) {
-              throw new Error(
-                `Expected string to contain ${JSON.stringify(sub)}`,
-              );
+              throw new Error(`Expected string to contain ${JSON.stringify(sub)}`);
             }
           },
         };

@@ -2,7 +2,7 @@
 
 WebdriverIO **Mocha** specs for native **Android / iOS**, plus official **`@wdio/mcp`** so Cursor can drive the app from chat. No Cucumber and no custom MCP server—configs, page objects, locators, env, Vitest unit tests, and a small **`patch-package`** patch on `@wdio/mcp` so `start_session` can complete demo login in one step.
 
-**Open source:** [LICENSE](./LICENSE) (ISC). **Trademarks, demo APK, npm deps, patches:** read [THIRD_PARTY.md](./THIRD_PARTY.md) before you publish or redistribute. **Publishing the CLI:** [RELEASING.md](./RELEASING.md).
+**Open source:** [LICENSE](./LICENSE) (ISC). **Trademarks, demo APK, npm deps, patches:** read [THIRD_PARTY.md](./THIRD_PARTY.md) before you publish or redistribute. **Publishing the CLI:** [RELEASING.md](./RELEASING.md). **Pull requests:** [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Layout
 
@@ -152,6 +152,16 @@ Use these if you need to run the MCP server outside Cursor’s managed process.
 ```bash
 npm run validate
 ```
+
+**Lint, format, and CI parity (no emulator):**
+
+```bash
+npm run ci:verify        # Prettier check + ESLint + TypeScript + Vitest (matches GitHub Actions + husky pre-push)
+npm run lint             # ESLint only
+npm run format           # Prettier --write
+```
+
+On **commit**, **lint-staged** runs ESLint + Prettier on staged files. On **push**, **husky** runs `npm run ci:verify`. **GitHub Actions** runs the same `ci:verify` job on pushes and pull requests to `main` / `master`.
 
 ## Failure artifacts
 
