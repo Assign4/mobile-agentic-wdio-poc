@@ -15,7 +15,7 @@
     "mcp:server:with-appium": "MCP_BLOCK_UNTIL_EMULATOR_READY=1 sh scripts/mcp-with-appium.sh",
     "mcp:ping-appium": "node scripts/ping-appium.mjs",
     "appium:start": "sh scripts/run-appium-local.sh",
-    "appium:driver:android": "appium driver install --source=npm appium-uiautomator2-driver@4.2.9",
+    "appium:driver:android": "appium driver install --source=npm appium-uiautomator2-driver@7.1.0",
     "appium:driver:ios": "appium driver install xcuitest",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
@@ -52,6 +52,15 @@
     "url": "https://github.com/Assign4/mobile-agentic-wdio-poc/issues"
   },
   "homepage": "https://github.com/Assign4/mobile-agentic-wdio-poc#readme",
+  "overrides": {
+    "axios": "^1.14.0",
+    "form-data": "^4.0.5",
+    "serialize-javascript": "^7.0.5",
+    "lodash": "4.18.1",
+    "path-to-regexp": "8.4.2",
+    "yaml": "2.8.3",
+    "yauzl": "3.3.0"
+  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@modelcontextprotocol/sdk": "^1.27.1",
@@ -64,8 +73,7 @@
     "@wdio/mcp": "^3.2.2",
     "@wdio/mocha-framework": "^9.27.0",
     "@wdio/spec-reporter": "^9.27.0",
-    "appium": "^2.19.0",
-    "appium-uiautomator2-driver": "^4.2.9",
+    "appium": "^3.2.2",
     "dotenv": "^17.4.0",
     "eslint": "^10.2.0",
     "eslint-config-prettier": "^10.1.8",

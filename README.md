@@ -2,7 +2,7 @@
 
 WebdriverIO **Mocha** specs for native **Android / iOS**, plus official **`@wdio/mcp`** so Cursor can drive the app from chat. No Cucumber and no custom MCP server—configs, page objects, locators, env, Vitest unit tests, and a small **`patch-package`** patch on `@wdio/mcp` so `start_session` can complete demo login in one step.
 
-**Open source:** [LICENSE](./LICENSE) (ISC). **Trademarks, demo APK, npm deps, patches:** read [THIRD_PARTY.md](./THIRD_PARTY.md) before you publish or redistribute. **Publishing the CLI:** [RELEASING.md](./RELEASING.md).
+**Open source:** [LICENSE](./LICENSE) (ISC). **Trademarks, demo APK, npm deps, patches:** read [THIRD_PARTY.md](./THIRD_PARTY.md) before you publish or redistribute. **Publishing the CLI:** [RELEASING.md](./RELEASING.md). **Pull requests:** [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Layout
 
