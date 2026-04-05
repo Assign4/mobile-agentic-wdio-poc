@@ -25,22 +25,22 @@ Copies the embedded template, sets `package.json` `name` from the folder (or `--
 
 **Path rules:** the directory is resolved with `path.resolve()` from your **current working directory** (where you run the command), not from the global npm package path. Relative paths (`./foo`), absolute paths (`/tmp/foo`), and `~/foo` (tilde expanded by your shell or by the CLI) are supported.
 
-| Option | Meaning |
-|--------|---------|
-| `--force` | Overwrite a non-empty directory. |
-| `--no-install` | Skip `npm install`. |
-| `--no-demo-apk` | Skip demo APK download. |
-| `--name <name>` | Override `package.json` `name`. |
+| Option          | Meaning                          |
+| --------------- | -------------------------------- |
+| `--force`       | Overwrite a non-empty directory. |
+| `--no-install`  | Skip `npm install`.              |
+| `--no-demo-apk` | Skip demo APK download.          |
+| `--name <name>` | Override `package.json` `name`.  |
 
 ## `doctor`
 
 Checks Node (≥ 18), npm, Android SDK / `adb`, `JAVA_HOME`, demo APK, `.env`, local Appium + drivers, Xcode/simctl (macOS), and Appium `/status`. Exit code **1** only if a **required** check fails (Node version). Warnings are **!** and still exit **0**.
 
-| Option | Meaning |
-|--------|---------|
-| `--cwd <path>` | Project root (default: `process.cwd()`). |
-| `--json` | JSON on stdout. |
-| `--appium-url <url>` | Override `/status` URL. |
+| Option               | Meaning                                  |
+| -------------------- | ---------------------------------------- |
+| `--cwd <path>`       | Project root (default: `process.cwd()`). |
+| `--json`             | JSON on stdout.                          |
+| `--appium-url <url>` | Override `/status` URL.                  |
 
 In generated projects, **`npm run doctor`** uses a **vendored** script (no registry dependency on this package).
 

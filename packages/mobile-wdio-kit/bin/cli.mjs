@@ -86,6 +86,7 @@ async function main() {
       process.exit(1);
     }
     try {
+      process.stderr.write("\nmobile-wdio-kit — create\n\n");
       const { targetAbs, name } = createProject({
         targetDir: args.target,
         force: args.force,

@@ -1,9 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { nativeAlertLocators } from "../locators/nativeAlert.locators.ts";
-import {
-  setupWdioTestContext,
-  stubExpectWebdriverStyle,
-} from "../test-utils/wdioTestGlobals.ts";
+import { setupWdioTestContext, stubExpectWebdriverStyle } from "../test-utils/wdioTestGlobals.ts";
 import { NativeAlertPage } from "./NativeAlert.page.ts";
 
 describe("NativeAlertPage", () => {
@@ -55,9 +52,7 @@ describe("NativeAlertPage", () => {
       globalThis.$(titleSel);
       globalThis.$(msgSel);
       vi.mocked(globalThis.$(titleSel).getText).mockResolvedValue("Done");
-      vi.mocked(globalThis.$(msgSel).getText).mockResolvedValue(
-        "Success — logged in",
-      );
+      vi.mocked(globalThis.$(msgSel).getText).mockResolvedValue("Success — logged in");
       const page = new NativeAlertPage();
       await expect(page.expectSuccessMessage()).resolves.toBeUndefined();
     });
@@ -74,9 +69,7 @@ describe("NativeAlertPage", () => {
       vi.mocked(globalThis.$(titleSel).getText).mockResolvedValue("Nope");
       vi.mocked(globalThis.$(msgSel).getText).mockResolvedValue("Try again");
       const page = new NativeAlertPage();
-      await expect(page.expectSuccessMessage()).rejects.toThrow(
-        /Expected string to contain/,
-      );
+      await expect(page.expectSuccessMessage()).rejects.toThrow(/Expected string to contain/);
     });
   });
 
@@ -84,8 +77,6 @@ describe("NativeAlertPage", () => {
     setupWdioTestContext({ isAndroid: true, isIOS: false });
     const page = new NativeAlertPage();
     await page.confirm();
-    expect(
-      globalThis.$(nativeAlertLocators.android.okButton).click,
-    ).toHaveBeenCalled();
+    expect(globalThis.$(nativeAlertLocators.android.okButton).click).toHaveBeenCalled();
   });
 });

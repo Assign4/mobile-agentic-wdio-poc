@@ -37,15 +37,11 @@ const line = `\n--- ${new Date().toISOString()} starting Appium for MCP ---\n`;
 writeSync(logFd, line);
 
 const appiumBin = join(root, "node_modules", ".bin", "appium");
-const child = spawn(
-  appiumBin,
-  ["--address", host, "--port", String(port)],
-  {
-    cwd: root,
-    detached: true,
-    stdio: ["ignore", logFd, logFd],
-  }
-);
+const child = spawn(appiumBin, ["--address", host, "--port", String(port)], {
+  cwd: root,
+  detached: true,
+  stdio: ["ignore", logFd, logFd],
+});
 child.unref();
 
 child.on("error", (err) => {

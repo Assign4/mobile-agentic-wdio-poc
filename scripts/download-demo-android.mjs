@@ -14,11 +14,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const defaultUrl =
   "https://github.com/webdriverio/native-demo-app/releases/download/v2.0.0/android.wdio.native.app.v2.0.0.apk";
 const url = process.env.DEMO_APK_URL ?? defaultUrl;
-const dest = join(
-  root,
-  "apps",
-  "android.wdio.native.app.v2.0.0.apk",
-);
+const dest = join(root, "apps", "android.wdio.native.app.v2.0.0.apk");
 
 if (existsSync(dest) && process.env.DEMO_APK_FORCE !== "1") {
   console.log(`Demo APK already present: ${dest}`);

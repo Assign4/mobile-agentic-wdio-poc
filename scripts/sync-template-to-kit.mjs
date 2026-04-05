@@ -13,7 +13,7 @@ import {
   statSync,
   writeFileSync,
 } from "node:fs";
-import { dirname, join, relative, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -73,7 +73,7 @@ if (!existsSync(kitRoot)) {
 
 console.log(`Sync template → ${destRoot}`);
 if (existsSync(destRoot)) {
-  rmSync(destRoot, { recursive: true, force: true });
+  rmSync(destRoot, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
 }
 mkdirSync(destRoot, { recursive: true });
 copyTree(repoRoot, destRoot);
@@ -82,10 +82,7 @@ copyFileSync(
   join(kitRoot, "lib", "doctor.mjs"),
   join(destRoot, "scripts", "mobile-wdio-doctor-core.mjs"),
 );
-copyFileSync(
-  join(kitRoot, "lib", "doctor-cli.mjs"),
-  join(destRoot, "scripts", "doctor-cli.mjs"),
-);
+copyFileSync(join(kitRoot, "lib", "doctor-cli.mjs"), join(destRoot, "scripts", "doctor-cli.mjs"));
 
 const doctorRunner = `#!/usr/bin/env node
 import { printDoctorResult, runDoctor } from "./mobile-wdio-doctor-core.mjs";

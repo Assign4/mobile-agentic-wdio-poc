@@ -60,8 +60,7 @@ export async function runDoctor(opts = {}) {
     fix: npmWhich ? undefined : "Install Node.js with npm, or use a version manager (nvm, fnm).",
   });
 
-  const androidHome =
-    process.env.ANDROID_HOME || process.env.ANDROID_SDK_ROOT || "";
+  const androidHome = process.env.ANDROID_HOME || process.env.ANDROID_SDK_ROOT || "";
   const sdkOk = Boolean(androidHome && existsSync(androidHome));
   add({
     ok: sdkOk,
@@ -80,25 +79,19 @@ export async function runDoctor(opts = {}) {
     level: adbOk ? "ok" : "warn",
     title: "adb on PATH",
     detail: adbOk ? adbPath : "not found",
-    fix: adbOk
-      ? undefined
-      : "Add platform-tools to PATH (inside your Android SDK).",
+    fix: adbOk ? undefined : "Add platform-tools to PATH (inside your Android SDK).",
   });
 
   if (adbOk) {
     const dev = run("adb", ["devices"]);
     const lines = dev.out.split("\n").filter(Boolean);
-    const deviceLines = lines.filter(
-      (l) => l.includes("\tdevice") || l.includes("\temulator"),
-    );
+    const deviceLines = lines.filter((l) => l.includes("\tdevice") || l.includes("\temulator"));
     add({
       ok: deviceLines.length > 0,
       level: deviceLines.length > 0 ? "ok" : "warn",
       title: "ADB device / emulator",
       detail:
-        deviceLines.length > 0
-          ? `${deviceLines.length} online`
-          : "no devices in `adb devices`",
+        deviceLines.length > 0 ? `${deviceLines.length} online` : "no devices in `adb devices`",
       fix:
         deviceLines.length > 0
           ? undefined
@@ -166,9 +159,7 @@ export async function runDoctor(opts = {}) {
 
     if (appiumLocal) {
       const appiumCli =
-        process.platform === "win32"
-          ? join(cwd, "node_modules", ".bin", "appium.cmd")
-          : appiumBin;
+        process.platform === "win32" ? join(cwd, "node_modules", ".bin", "appium.cmd") : appiumBin;
       const exe = existsSync(appiumCli) ? appiumCli : appiumBin;
       const drivers = spawnSync(exe, ["driver", "list", "--installed"], {
         cwd,
@@ -218,9 +209,7 @@ export async function runDoctor(opts = {}) {
       level: simOk ? "ok" : "warn",
       title: "iOS Simulator (simctl)",
       detail: simOk ? "at least one iPhone/iPad device listing present" : sim.out || "failed",
-      fix: simOk
-        ? undefined
-        : "Open Xcode → Settings → Platforms and install a simulator runtime.",
+      fix: simOk ? undefined : "Open Xcode → Settings → Platforms and install a simulator runtime.",
     });
   } else {
     add({
@@ -237,11 +226,8 @@ export async function runDoctor(opts = {}) {
       try {
         if (existsSync(join(cwd, ".env"))) {
           const raw = readFileSync(join(cwd, ".env"), "utf8");
-          const host =
-            raw.match(/^\s*APPIUM_HOST\s*=\s*(.+)$/m)?.[1]?.trim() ??
-            "127.0.0.1";
-          const port =
-            raw.match(/^\s*APPIUM_PORT\s*=\s*(.+)$/m)?.[1]?.trim() ?? "4723";
+          const host = raw.match(/^\s*APPIUM_HOST\s*=\s*(.+)$/m)?.[1]?.trim() ?? "127.0.0.1";
+          const port = raw.match(/^\s*APPIUM_PORT\s*=\s*(.+)$/m)?.[1]?.trim() ?? "4723";
           return `http://${host}:${port}/status`;
         }
       } catch {
@@ -291,8 +277,7 @@ export async function runDoctor(opts = {}) {
     };
   }
 
-  const icon = (c) =>
-    c.level === "ok" ? "✓" : c.level === "warn" ? "!" : "✗";
+  const icon = (c) => (c.level === "ok" ? "✓" : c.level === "warn" ? "!" : "✗");
 
   const lines = [
     "",

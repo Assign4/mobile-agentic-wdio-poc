@@ -18,6 +18,12 @@ From the **repository root**:
 npm run kit:sync
 ```
 
+Or from **`packages/mobile-wdio-kit`** (same script):
+
+```bash
+npm run kit:sync
+```
+
 Commit the updated `packages/mobile-wdio-kit/template/` if you version-control it.
 
 ## Publish
